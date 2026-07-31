@@ -1,20 +1,47 @@
-# Mengimpor pustaka google_play_scraper untuk mengakses ulasan dan informasi aplikasi dari Google Play Store.
-from google_play_scraper import app, reviews_all, Sort
-# Mengambil semua ulasan dari aplikasi dengan ID 'com.byu.id' di Google Play Store.
-# Proses scraping mungkin memerlukan beberapa saat tergantung pada jumlah ulasan yang ada.
-scrapreview = reviews_all(
-    'com.bluepoch.m.en.reverse1999',  # ID aplikasi
-    lang='id',                        # Bahasa ulasan (default: 'en')
-    country='id',                     # Negara (default: 'us')
-    sort=Sort.NEWEST,            # Urutan ulasan (default: Sort.MOST_RELEVANT)
-    count=10000                       # Jumlah maksimum ulasan yang ingin diambil
-)
-
-# Menyimpan ulasan dalam file CSV
 import csv
+import time
+import pandas as pd
+from google_play_scraper import Sort, reviews
 
-with open('ulasan_aplikasi.csv', mode='w', newline='', encoding='utf-8') as file:
-    writer = csv.writer(file)
-    writer.writerow(['Review']) # Menulis header kolom
-    for review in scrapreview:
-        writer.writerow([review['content']])    # Menulis konten ulasan ke dalam file CSV
+APP_ID = 'com.bluepoch.m.en.reverse1999'
+TARGET_COUNT = 20000
+BATCH_SIZE = 500
+OUTPUT_FILE = 'ulasan_aplikasi.csv'
+
+def main():
+    scrapreview = []
+    print(f"Mulai mengambil ulasan untuk {APP_ID}...")
+
+    # Batch pertama
+    fetched_reviews, continuation_token = reviews(
+        APP_ID,
+        lang='en',          # Ulasan Bahasa Inggris
+        country='us',       # Region US
+        sort=Sort.NEWEST,   # Urutan ulasan terbaru
+        count=BATCH_SIZE
+    )
+    scrapreview.extend(fetched_reviews)
+    print(f"Berhasil mengambil {len(scrapreview)} ulasan...")
+
+    # Fetching bertahap menggunakan continuation token
+    while len(scrapreview) < TARGET_COUNT and continuation_token:
+        time.sleep(0.5)
+        fetched_reviews, continuation_token = reviews(
+            APP_ID,
+            continuation_token=continuation_token
+        )
+        if not fetched_reviews:
+            break
+        scrapreview.extend(fetched_reviews)
+        print(f"Berhasil mengambil {len(scrapreview)} ulasan...")
+
+    # Membatasi hasil tepat 100.000 data
+    scrapreview = scrapreview[:TARGET_COUNT]
+    
+    # Menyimpan ke CSV
+    df = pd.DataFrame(scrapreview)
+    df.to_csv(OUTPUT_FILE, index=False, encoding='utf-8')
+    print(f"\nSelesai! Total {len(df)} ulasan disimpan ke '{OUTPUT_FILE}'.")
+
+if __name__ == '__main__':
+    main()
