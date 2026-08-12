@@ -1,24 +1,24 @@
-# Analisis Sentimen Ulasan Game Reverse: 1999
+# Sentiment Analysis of Reverse: 1999 Game Reviews
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![NLP](https://img.shields.io/badge/NLP-Sentiment%20Analysis-green)
 ![Machine Learning](https://img.shields.io/badge/ML-TF--IDF%20%7C%20RoBERTa-orange)
 ![Deep Learning](https://img.shields.io/badge/DL-TextCNN%20%7C%20BiLSTM%20%7C%20RoBERTa-purple)
 
-Project ini melakukan analisis sentimen terhadap ulasan pengguna game **Reverse: 1999** di Google Play Store. Data ulasan dikumpulkan menggunakan `google-play-scraper`, diproses dengan teknik NLP, kemudian dievaluasi menggunakan beberapa pendekatan machine learning dan deep learning untuk membandingkan performa klasifikasi sentimen.
+This project performs sentiment analysis on **Reverse: 1999** game user reviews from Google Play Store. Review data collected using `google-play-scraper`, processed with NLP techniques, then evaluated using several machine learning and deep learning approaches to compare sentiment classification performance.
 
-Project ini dibuat sebagai portofolio untuk menunjukkan alur kerja end-to-end dalam text mining: **data scraping → preprocessing → labeling sentimen → feature extraction → training model → evaluasi → inference**.
+This project created as portfolio to demonstrate end-to-end workflow in text mining: **data scraping → preprocessing → sentiment labeling → feature extraction → model training → evaluation → inference**.
 
-## Ringkasan Project
+## Project Summary
 
-- **Objek analisis:** ulasan aplikasi Reverse: 1999 (`com.bluepoch.m.en.reverse1999`)
-- **Sumber data:** Google Play Store
-- **Jumlah data mentah:** 14.168 ulasan
-- **Jumlah data bersih pada notebook baseline:** 13.106 ulasan
-- **Bahasa ulasan:** English (`lang='en'`, `country='us'`)
-- **Task:** klasifikasi sentimen ulasan pengguna
-- **Labeling:** weak labeling menggunakan VADER Sentiment Analyzer
-- **Model yang dibandingkan:**
+- **Analysis target:** Reverse: 1999 application reviews (`com.bluepoch.m.en.reverse1999`)
+- **Data source:** Google Play Store
+- **Raw data count:** 14,168 reviews
+- **Clean data on baseline notebook:** 13,106 reviews
+- **Review language:** English (`lang='en'`, `country='us'`)
+- **Task:** user review sentiment classification
+- **Labeling:** weak labeling using VADER Sentiment Analyzer
+- **Models compared:**
   - Naive Bayes
   - Logistic Regression
   - Random Forest
@@ -26,35 +26,35 @@ Project ini dibuat sebagai portofolio untuk menunjukkan alur kerja end-to-end da
   - RoBERTa fine-tuned
   - TextCNN
   - BiLSTM + GloVe + Attention
-  - Ensemble voting pada notebook deep learning
+  - Ensemble voting on deep learning notebook
 
 ## Dataset
 
-Dataset utama tersimpan pada file:
+Main dataset stored in file:
 
 ```text
 ulasan_aplikasi.csv
 ```
 
-Kolom dataset hasil scraping:
+Scraped dataset columns:
 
-| Kolom | Deskripsi |
+| Column | Description |
 | --- | --- |
-| `reviewId` | ID unik ulasan |
-| `userName` | Nama pengguna Google Play |
-| `userImage` | URL foto profil pengguna |
-| `content` | Isi ulasan pengguna |
-| `score` | Rating bintang 1–5 |
-| `thumbsUpCount` | Jumlah like pada ulasan |
-| `reviewCreatedVersion` | Versi aplikasi saat ulasan dibuat |
-| `at` | Tanggal ulasan |
-| `replyContent` | Balasan developer jika tersedia |
-| `repliedAt` | Tanggal balasan developer |
-| `appVersion` | Versi aplikasi |
+| `reviewId` | Unique review ID |
+| `userName` | Google Play user name |
+| `userImage` | User profile photo URL |
+| `content` | User review content |
+| `score` | Star rating 1–5 |
+| `thumbsUpCount` | Number of likes on review |
+| `reviewCreatedVersion` | App version when review created |
+| `at` | Review date |
+| `replyContent` | Developer reply if available |
+| `repliedAt` | Developer reply date |
+| `appVersion` | App version |
 
-Distribusi rating pada dataset:
+Rating distribution in dataset:
 
-| Rating | Jumlah Ulasan |
+| Rating | Review Count |
 | --- | ---: |
 | 1 | 976 |
 | 2 | 415 |
@@ -62,15 +62,15 @@ Distribusi rating pada dataset:
 | 4 | 1.334 |
 | 5 | 10.864 |
 
-> Catatan: Dataset mengandung informasi publik dari Google Play. Untuk penggunaan lebih lanjut, sebaiknya hindari menampilkan informasi personal pengguna seperti `userName` dan `userImage` pada laporan publik.
+> Note: Dataset contains public information from Google Play. For further use, avoid displaying personal user information like `userName` and `userImage` in public reports.
 
-## Metodologi
+## Methodology
 
 ### 1. Data Scraping
 
-File `scraping.py` mengambil ulasan dari Google Play Store menggunakan package `google-play-scraper`.
+File `scraping.py` retrieves reviews from Google Play Store using `google-play-scraper` package.
 
-Konfigurasi utama:
+Main configuration:
 
 ```python
 APP_ID = 'com.bluepoch.m.en.reverse1999'
@@ -79,35 +79,35 @@ BATCH_SIZE = 500
 OUTPUT_FILE = 'ulasan_aplikasi.csv'
 ```
 
-Scraping dilakukan bertahap menggunakan continuation token hingga mencapai target data atau sampai ulasan tidak tersedia lagi.
+Scraping done in stages using continuation token until reaching target data or reviews no longer available.
 
 ### 2. Text Preprocessing
 
-Tahapan preprocessing yang digunakan pada notebook mencakup:
+Preprocessing stages used in notebook include:
 
-- Menghapus mention, hashtag, retweet marker, URL, angka, dan tanda baca
+- Remove mentions, hashtags, retweet markers, URLs, numbers, and punctuation
 - Case folding
-- Tokenisasi
+- Tokenization
 - Stopword removal
-- Menggabungkan kembali token menjadi teks bersih
-- Menghapus data kosong dan duplikat
+- Rejoin tokens back to clean text
+- Remove empty and duplicate data
 
 ### 3. Sentiment Labeling
 
-Label sentimen dibuat menggunakan **VADER Sentiment Analyzer** dari NLTK.
+Sentiment labels created using **VADER Sentiment Analyzer** from NLTK.
 
-Pada notebook baseline, sentimen diklasifikasikan menjadi dua kelas:
+On baseline notebook, sentiment classified into two classes:
 
 - `positive`
 - `negative`
 
-Pada notebook deep learning, label dikembangkan menjadi tiga kelas:
+On deep learning notebook, labels developed into three classes:
 
 - `negative`
 - `neutral`
 - `positive`
 
-Mapping label pada notebook deep learning:
+Label mapping on deep learning notebook:
 
 ```python
 LABEL_MAP = {
@@ -119,16 +119,16 @@ LABEL_MAP = {
 
 ### 4. Modeling
 
-Project ini memiliki dua notebook utama:
+This project has two main notebooks:
 
-| Notebook | Fokus |
+| Notebook | Focus |
 | --- | --- |
-| `model_training.ipynb` | Baseline machine learning dan fine-tuning RoBERTa untuk klasifikasi sentimen |
-| `DL_model_training.ipynb` | Eksperimen deep learning lanjutan menggunakan TextCNN, BiLSTM + GloVe + Attention, RoBERTa, dan ensemble voting |
+| `model_training.ipynb` | Baseline machine learning and RoBERTa fine-tuning for sentiment classification |
+| `DL_model_training.ipynb` | Advanced deep learning experiments lanjutan menggunakan TextCNN, BiLSTM + GloVe + Attention, RoBERTa, and ensemble voting |
 
 #### Baseline Machine Learning
 
-Pendekatan baseline menggunakan fitur **TF-IDF** dan beberapa model klasik:
+Baseline approach uses features **TF-IDF** dan beberapa model klasik:
 
 - Naive Bayes
 - Logistic Regression
@@ -137,16 +137,16 @@ Pendekatan baseline menggunakan fitur **TF-IDF** dan beberapa model klasik:
 
 #### Deep Learning
 
-Notebook `DL_model_training.ipynb` berisi eksperimen lanjutan:
+Notebook `DL_model_training.ipynb` contains eksperimen lanjutan:
 
-- **TextCNN** dengan trainable embedding, augmentasi teks, label smoothing, early stopping, dan learning rate scheduler
-- **BiLSTM + GloVe + Self-Attention** untuk menangkap konteks urutan token
-- **RoBERTa fine-tuning** menggunakan model `cardiffnlp/twitter-roberta-base-sentiment-latest`
-- **Majority Voting Ensemble** dari TextCNN, BiLSTM, dan RoBERTa
+- **TextCNN** with trainable embeddings, text augmentation, label smoothing, early stopping, and learning rate scheduler
+- **BiLSTM + GloVe + Self-Attention** to capture token sequence context
+- **RoBERTa fine-tuning** using model `cardiffnlp/twitter-roberta-base-sentiment-latest`
+- **Majority Voting Ensemble** from TextCNN, BiLSTM, and RoBERTa
 
-## Hasil Evaluasi
+## Evaluation Results
 
-Hasil berikut diambil dari output yang tersimpan pada `model_training.ipynb`.
+Following results taken from output saved in `model_training.ipynb`.
 
 | Model | Accuracy |
 | --- | ---: |
@@ -156,9 +156,9 @@ Hasil berikut diambil dari output yang tersimpan pada `model_training.ipynb`.
 | Decision Tree | 0.9100 |
 | Naive Bayes | 0.8978 |
 
-Model dengan performa terbaik pada notebook baseline adalah **RoBERTa Fine-Tuned** dengan akurasi sekitar **95,54%**.
+Best performing model on baseline notebook is **RoBERTa Fine-Tuned** with accuracy around **95.54%**.
 
-## Struktur Project
+## Project Structure
 
 ```text
 Reverse 1999/
@@ -173,20 +173,20 @@ Reverse 1999/
 └── .gitignore
 ```
 
-Keterangan file utama:
+Main file descriptions:
 
-| File | Deskripsi |
+| File | Description |
 | --- | --- |
-| `scraping.py` | Script untuk mengambil ulasan Reverse: 1999 dari Google Play Store |
-| `ulasan_aplikasi.csv` | Dataset ulasan hasil scraping |
-| `model_training.ipynb` | Notebook baseline preprocessing, labeling, TF-IDF, model klasik, RoBERTa, evaluasi, dan inference |
-| `DL_model_training.ipynb` | Notebook eksperimen deep learning lanjutan dan ensemble |
-| `glove.twitter.27B.100d.txt` | Pre-trained GloVe embedding untuk eksperimen BiLSTM |
-| `requirements.txt` | Daftar dependency Python |
+| `scraping.py` | Script to retrieve Reverse: 1999 reviews from Google Play Store |
+| `ulasan_aplikasi.csv` | Dataset of scraped reviews |
+| `model_training.ipynb` | Baseline notebook: preprocessing, labeling, TF-IDF, classic models, RoBERTa, evaluation, and inference |
+| `DL_model_training.ipynb` | Advanced deep learning experiments and ensemble notebook |
+| `glove.twitter.27B.100d.txt` | Pre-trained GloVe embedding embedding embedding embedding embedding untuk eksperimen BiLSTM |
+| `requirements.txt` | List of Python dependencies |
 
-> File `glove.twitter.27B.100d.txt` berukuran besar dan sudah dimasukkan ke `.gitignore`, sehingga tidak direkomendasikan untuk diunggah ke repository publik.
+> File `glove.twitter.27B.100d.txt` is large and already in `.gitignore`, so not recommended for public repository upload.
 
-## Teknologi yang Digunakan
+## Technologies Used
 
 - Python
 - Pandas
@@ -200,7 +200,7 @@ Keterangan file utama:
 - Seaborn
 - Jupyter Notebook / Google Colab
 
-## Cara Menjalankan Project
+## How to Run Project
 
 ### 1. Clone Repository
 
@@ -209,13 +209,13 @@ git clone <url-repository>
 cd "Reverse 1999"
 ```
 
-### 2. Buat Virtual Environment
+### 2. Create Virtual Environment
 
 ```bash
 python -m venv .venv
 ```
 
-Aktivasi environment:
+Activate environment:
 
 ```bash
 # Windows
@@ -225,70 +225,70 @@ Aktivasi environment:
 source .venv/bin/activate
 ```
 
-### 3. Install Dependency
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Jalankan Scraping Data
+### 4. Run Data Scraping
 
 ```bash
 python scraping.py
 ```
 
-Script akan menghasilkan file:
+Script will produce file:
 
 ```text
 ulasan_aplikasi.csv
 ```
 
-### 5. Jalankan Notebook Training
+### 5. Run Training Notebook
 
-Buka salah satu notebook berikut menggunakan Jupyter Notebook, JupyterLab, VS Code, atau Google Colab:
+Open one of the following notebooks using Jupyter Notebook, JupyterLab, VS Code, or Google Colab:
 
 ```text
 model_training.ipynb
 DL_model_training.ipynb
 ```
 
-Rekomendasi:
+Recommendations:
 
-- Gunakan GPU untuk menjalankan model deep learning, terutama RoBERTa.
-- Untuk `DL_model_training.ipynb`, pastikan file GloVe tersedia dan path `GLOVE_PATH` sudah disesuaikan.
-- Jika menjalankan di Google Colab, upload dataset dan GloVe ke Google Drive sesuai path yang ada di notebook.
+- Use GPU to run deep learning models, especially RoBERTa.
+- For `DL_model_training.ipynb`, ensure GloVe file available and `GLOVE_PATH` adjusted.
+- If running on Google Colab, upload dataset and GloVe to Google Drive per paths in notebook.
 
-## Alur Kerja Project
+## Project Workflow
 
 ```mermaid
 flowchart TD
-    A[Scraping ulasan Google Play] --> B[Simpan ke CSV]
-    B --> C[Cleaning dan preprocessing teks]
-    C --> D[Labeling sentimen dengan VADER]
-    D --> E[Feature extraction TF-IDF]
-    D --> F[Tokenisasi untuk deep learning]
-    E --> G[Training model klasik]
-    F --> H[Training TextCNN, BiLSTM, RoBERTa]
-    G --> I[Evaluasi model]
+    A[Scrape Google Play reviews] --> B[Save to CSV]
+    B --> C[Clean and preprocess text]
+    C --> D[Label sentiment with VADER]
+    D --> E[TF-IDF feature extraction]
+    D --> F[Tokenize for deep learning]
+    E --> G[Train classic models]
+    F --> H[Train TextCNN, BiLSTM, RoBERTa]
+    G --> I[Evaluate models]
     H --> I
-    I --> J[Perbandingan model dan inference]
+    I --> J[Model comparison and inference]
 ```
 
-## Insight Singkat
+## Brief Insights
 
-Berdasarkan distribusi rating, mayoritas ulasan Reverse: 1999 bernada sangat positif dengan dominasi rating 5. Namun, beberapa ulasan rating rendah menyoroti isu seperti power creep, resource, dan gameplay. Oleh karena itu, analisis sentimen membantu merangkum persepsi pengguna secara lebih sistematis daripada hanya melihat rating agregat.
+Based on rating distribution, majority of Reverse: 1999 reviews have very positive tone with 5-star rating dominance. However, some low-rating reviews highlight issues like power creep, resources, and gameplay. Therefore, sentiment analysis helps summarize user perception more systematically than just looking at aggregate ratings.
 
-## Pengembangan Selanjutnya
+## Future Developments
 
-Beberapa pengembangan yang dapat dilakukan:
+Some possible developments:
 
-- Menambahkan anotasi manual untuk validasi label VADER
-- Menggunakan metrik tambahan seperti macro F1, precision, recall, dan confusion matrix pada semua model
-- Menyimpan model terbaik dalam format `.pkl` atau `.pt`
-- Membuat dashboard visualisasi sentimen
-- Membuat API sederhana untuk inference sentimen ulasan baru
-- Menambahkan analisis aspek, misalnya story, gameplay, gacha, performance, dan monetization
+- Add manual annotation to validate VADER labels
+- Use additional metrics like macro F1, precision, recall, and confusion matrix on all models
+- Save best models in `.pkl` or `.pt` format
+- Create sentiment visualization dashboard
+- Create simple API for new review sentiment inference
+- Add aspect analysis, e.g., story, gameplay, gacha, performance, monetization
 
 ## Author
 
-Project ini dikembangkan sebagai bagian dari portofolio data science / machine learning untuk analisis sentimen ulasan aplikasi game.
+This project developed as part of data science / machine learning portfolio for game app review sentiment analysis.
